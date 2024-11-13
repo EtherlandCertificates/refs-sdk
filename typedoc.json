@@ -1,0 +1,12 @@
+{
+  "entryPoints": [
+    "./src/index.ts"
+  ],
+  "exclude": [
+    "**/*.test.ts"
+  ],
+  "excludeExternals": true,
+  "name": "ODD SDK",
+  "out": "docs",
+  "theme": "default"
+}
