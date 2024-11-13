@@ -1,6 +1,6 @@
 # ODD SDK
 
-[![NPM](https://img.shields.io/npm/v/@oddjs/odd)](https://www.npmjs.com/package/@oddjs/odd)
+[![NPM](https://img.shields.io/npm/v/@etherland/odd)](https://www.npmjs.com/package/@etherland/odd)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/oddsdk/ts-odd/blob/main/LICENSE)
 [![Built by FISSION](https://img.shields.io/badge/⌘-Built_by_FISSION-purple.svg)](https://fission.codes)
 [![Discord](https://img.shields.io/discord/478735028319158273.svg)](https://discord.gg/zAQBDEq)
@@ -17,31 +17,31 @@ ODD applications work offline and store data encrypted for the user by leveragin
 
 # Installation
 
-The `ts-odd` package is published on yarn, pnpm and npm as `@oddjs/odd`:
+The `ts-odd` package is published on yarn, pnpm and npm as `@etherland/odd`:
 
 ### npm
 
 ```bash
-npm install @oddjs/odd
+npm install @etherland/odd
 ```
 
 ### pnpm
 
 ```bash
-pnpm install @oddjs/odd
+pnpm install @etherland/odd
 ```
 
 ### yarn
 
 ```bash
-yarn add @oddjs/odd
+yarn add @etherland/odd
 ```
 
 # Getting started
 
 ```ts
 // ESM
-import * as odd from "@oddjs/odd"
+import * as odd from "@etherland/odd"
 
 // Browser/UMD build
 const odd = globalThis.oddjs
