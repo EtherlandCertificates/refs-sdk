@@ -8,6 +8,7 @@ import * as Ucan from "../../../../ucan/index.js"
 
 import { decodeCID } from "../../../../common/cid.js"
 import { Dependencies } from "../base.js"
+import { getAccountInfo } from "../../../auth/implementation/fission-base.js"
 
 
 /**
@@ -21,6 +22,8 @@ export async function lookup(
   dependencies: Dependencies,
   username: string
 ): Promise<CID | null> {
+
+  
   const maybeRoot = await lookupOnFisson(endpoints, dependencies, username)
   if (!maybeRoot) return null
   if (maybeRoot !== null) return maybeRoot
@@ -45,12 +48,15 @@ export async function lookupOnFisson(
   username: string
 ): Promise<CID | null> {
   try {
-    const resp = await fetch(
-      Fission.apiUrl(endpoints, `user/data/${username}`),
-      { cache: "reload" } // don't use cache
-    )
-    const cid = await resp.json()
-    return decodeCID(cid)
+    console.log(" lookupOnFisson2 ", username)
+    // const resp = await fetch(
+    //   Fission.apiUrl(endpoints, `user/data/${username}`),
+    //   { cache: "reload" } // don't use cache
+    // )
+    const cid = await getAccountInfo();
+    console.log("lookupOnFisson2 1 ", cid)
+    // const cid = await resp.json()
+    return decodeCID(cid.data)
 
   } catch (err) {
     dependencies.manners.log(
@@ -78,8 +84,9 @@ export async function update(
 
   // Debug
   dependencies.manners.log("🌊 Updating your DNSLink:", cid)
-
+  console.log("update data roots ", cid)
   // Make API call
+  return {success: true}
   return await fetchWithRetry(Fission.apiUrl(endpoints, `user/data/${cid}`), {
     headers: async () => {
       const jwt = Ucan.encode(await Ucan.build({

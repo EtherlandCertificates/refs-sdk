@@ -14,34 +14,33 @@ export type Endpoints = {
   apiPath: string
   lobby: string
   server: string
+  did: string
   userDomain: string
 }
 
-
 export const PRODUCTION: Endpoints = {
-  apiPath: "/v2/api",
-  lobby: "https://auth.fission.codes",
-  server: "https://runfission.com",
-  userDomain: "fission.name"
+  apiPath: "/api/v0",
+  lobby: "https://auth.etherland.world",
+  server: "https://auth.etherland.world",
+  did: "https://server.etherland.me",
+  userDomain: "etherland.me"
 }
 
+// _did.server.etherland.me
 
 export const STAGING: Endpoints = {
-  apiPath: "/v2/api",
-  lobby: "https://auth.runfission.net",
-  server: "https://runfission.net",
-  userDomain: "fissionuser.net"
+  apiPath: "/api/v0",
+  lobby: "https://auth.etherland.world",
+  server: "https://auth.etherland.world",
+  did: "https://server.etherland.me",
+  userDomain: "etherland.me"
 }
-
 
 export function apiUrl(endpoints: Endpoints, suffix?: string): string {
   return `${endpoints.server}${endpoints.apiPath}${suffix?.length ? "/" + suffix.replace(/^\/+/, "") : ""}`
 }
 
-
-
 // API
-
 
 const didCache: {
   did: string | null
@@ -60,8 +59,9 @@ const didCache: {
  */
 export async function did(endpoints: Endpoints): Promise<string> {
   let host
+  console.log("did **s ", `_did.${endpoints.userDomain}`)
   try {
-    host = new URL(endpoints.server).host
+    host = new URL(endpoints.did).host
   } catch (e) {
     throw new Error("Unable to parse API Endpoint")
   }

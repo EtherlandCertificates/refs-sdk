@@ -121,20 +121,31 @@ export async function createAndConnect(
   repoName: string,
   logging: boolean
 ): Promise<{ ipfs: IPFSCore; repo: IPFSRepo }> {
+  console.log("createAndConnect1 ", dependencies.storage)
+  console.log("createAndConnect2 ", peersUrl)
   const peers = await listPeers(dependencies.storage, peersUrl)
+
+  console.log("createAndConnect3 ", peers)
 
   if (peers.length === 0) {
     throw new Error("💥 Couldn't start IPFS node, peer list is empty")
   }
 
+  console.log("createAndConnect4 ", repoName)
   // Start an IPFS node & connect to all the peers
   const repo = IpfsRepo.create(repoName)
+  console.log("createAndConnect5 ")
+
   const ipfs: IPFSCore = await pkg.create({ ...OPTIONS, repo })
+  console.log("createAndConnect6 ", ipfs)
 
   peers.forEach(peer => {
+    console.log("createAndConnect7 ", peers)
     latestPeerTimeoutIds[ peer.toString() ] = null
     tryConnecting(ipfs as unknown as IPFS, peer, logging)
   })
+
+  console.log("createAndConnect8 ")
 
   // Try connecting when browser comes online
   globalThis.addEventListener("online", async () => {
@@ -165,7 +176,7 @@ export function fetchPeers(peersUrl: string): Promise<string[]> {
   return fetch(peersUrl)
     .then(r => r.json())
     .then(r => Array.isArray(r) ? r : [])
-    .then(r => r.filter(p => t.isString(p) && p.includes("/wss/")))
+    // .then(r => r.filter(p => t.isString(p) && p.includes("/wss/")))
     .catch(() => { throw new Error("💥 Couldn't start IPFS node, failed to fetch peer list") })
 }
 
@@ -180,16 +191,25 @@ export async function listPeers(
   const maybePeers = await storage.getItem(storageKey)
 
   if (t.isString(maybePeers) && maybePeers.trim() !== "") {
+    console.log("node 1", )
     peers = JSON.parse(maybePeers)
+    console.log("maybePeers ", maybePeers)
+    console.log("peers ", peers)
+    console.log("peersUrl ", peersUrl)
 
-    fetchPeers(peersUrl).then(list =>
+    fetchPeers(peersUrl).then(list =>{
+      console.log("bro", list)
+      console.log("bro", JSON.stringify(list))
       storage.setItem(storageKey, JSON.stringify(list))
+    }
     ).catch(err => {
       // don't throw
       console.error(err)
     })
 
   } else {
+
+    console.log("node 2")
     peers = await fetchPeers(peersUrl)
     await storage.setItem(storageKey, JSON.stringify(peers))
 
@@ -204,6 +224,7 @@ export async function listPeers(
 // -----------
 
 function keepAlive(ipfs: IPFS, peer: Multiaddr, backoff: BackOff, status: Status): void {
+  console.log("reconnecting...1 ")
   let timeoutId: ReturnType<typeof setTimeout> | null = null
 
   if (backoff.currentBackoff < KEEP_TRYING_INTERVAL) {
@@ -215,11 +236,14 @@ function keepAlive(ipfs: IPFS, peer: Multiaddr, backoff: BackOff, status: Status
     timeoutId = setTimeout(() => reconnect(ipfs, peer, backoff, status), KEEP_TRYING_INTERVAL)
 
   }
+  console.log("reconnecting...2 ")
 
   // Track the latest reconnect attempt
   latestPeerTimeoutIds[ peer.toString() ] = timeoutId
 
   ping(ipfs, peer).then(({ latency }) => {
+    console.log("reconnecting...3 ")
+
     const updatedStatus = { connected: true, lastConnectedAt: Date.now(), latency }
     report(peer, updatedStatus)
 
@@ -263,14 +287,18 @@ async function reconnect(ipfs: IPFS, peer: Multiaddr, backoff: BackOff, status: 
 
 
 export function tryConnecting(ipfs: IPFS, peer: Multiaddr, logging: boolean): void {
+  console.log("tryConnecting...")
   ping(ipfs, peer).then(({ latency }) => {
+    console.log("tryConnecting1...")
     return ipfs.swarm
       .connect(peer, { timeout: 60 * 1000 })
       .then(() => {
         if (logging) console.log(`🪐 Connected to ${peer}`)
+        console.log("tryConnecting2...")
 
         const status = { connected: true, lastConnectedAt: Date.now(), latency }
         report(peer, status)
+        console.log("tryConnecting3...", status)
 
         // Ensure permanent connection to a peer
         // NOTE: This is a temporary solution while we wait for
@@ -279,10 +307,11 @@ export function tryConnecting(ipfs: IPFS, peer: Multiaddr, logging: boolean): vo
         setTimeout(() => keepAlive(ipfs, peer, BACKOFF_INIT, status), KEEP_ALIVE_INTERVAL)
       })
 
-  }).catch(() => {
+  }).catch((err) => {
     if (logging) console.log(`🪓 Could not connect to ${peer}`)
 
     const status = { connected: false, lastConnectedAt: null, latency: null }
+    console.log("tryConnecting bug...", status, err)
 
     report(peer, status)
     keepAlive(ipfs, peer, BACKOFF_INIT, status)

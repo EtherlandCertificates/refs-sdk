@@ -29,5 +29,8 @@ export function implementation(
     isUsernameValid: fissionBase.isUsernameValid,
     isUsernameAvailable: fissionBase.isUsernameAvailable,
     register: fissionBase.register,
+    
+    emailVerify: fissionBase.emailVerify,
+
   }
 }

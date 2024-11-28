@@ -1,6 +1,6 @@
 {
   "name": "@etherland/odd",
-  "version": "0.37.2",
+  "version": "0.38.4",
   "description": "ODD SDK",
   "keywords": [
     "WebCrypto",
@@ -82,6 +82,7 @@
     "publish-latest": "npm publish --tag latest"
   },
   "dependencies": {
+    "@fission-codes/ucan": "0.3.0",
     "@ipld/dag-cbor": "^8.0.0",
     "@ipld/dag-pb": "^3.0.1",
     "@libp2p/interface-keys": "^1.0.4",
@@ -95,14 +96,19 @@
     "fission-bloom-filters": "1.7.1",
     "ipfs-core-types": "0.13.0",
     "ipfs-repo": "^16.0.0",
+    "iso-signatures": "^0.3.2",
+    "iso-websocket": "^0.2.0",
     "keystore-idb": "^0.15.5",
     "localforage": "^1.10.0",
     "multiformats": "^10.0.2",
     "one-webcrypto": "^1.0.3",
+    "patch-package": "^8.0.0",
     "throttle-debounce": "^3.0.1",
     "tweetnacl": "^1.0.3",
+    "type-fest": "^4.14.0",
     "uint8arrays": "^3.0.0",
-    "wnfs": "0.1.7"
+    "wnfs": "0.1.7",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",

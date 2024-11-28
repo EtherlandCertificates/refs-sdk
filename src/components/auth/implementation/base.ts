@@ -100,9 +100,21 @@ export async function linkDevice(
  */
 export async function register(
   dependencies: Dependencies,
-  options: { username: string; email?: string; type?: string }
+  options: {username: string; email: string; code: string; hashedUsername: string; type?: string }
 ): Promise<{ success: boolean }> {
+  console.log("sesssion register 123")
   await SessionMod.provide(dependencies.storage, { type: options.type || TYPE, username: options.username })
+  console.log("bro its perfect")
+  return { success: true }
+}
+
+export async function emailVerify(
+  dependencies: Dependencies,
+  options: {email: string; type?: string }
+): Promise<{ success: boolean }> {
+  console.log("emailVerify register 12334")
+  // await SessionMod.provide(dependencies.storage, { type: options.type || TYPE, username: options.username })
+  console.log("emailVerify perfect")
   return { success: true }
 }
 
@@ -142,8 +154,10 @@ export function implementation(dependencies: Dependencies): Implementation<Compo
     delegateAccount: (...args) => delegateAccount(dependencies, ...args),
     linkDevice: (...args) => linkDevice(dependencies, ...args),
     register: (...args) => register(dependencies, ...args),
-    session: session,
 
+    emailVerify: (...args) => emailVerify(dependencies, ...args),
+    
+    session: session,
     // Have to be implemented properly by other implementations
     createChannel: () => { throw new Error("Not implemented") },
     isUsernameValid: () => { throw new Error("Not implemented") },

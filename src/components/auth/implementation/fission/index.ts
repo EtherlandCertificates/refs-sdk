@@ -9,6 +9,7 @@ import * as Ucan from "../../../../ucan/index.js"
 import { USERNAME_BLOCKLIST } from "./blocklist.js"
 import { Endpoints } from "../../../../common/fission.js"
 
+// import { createAccountApi } from "../../../../ucans/api.js"
 
 export * from "../../../../common/fission.js"
 
@@ -21,17 +22,22 @@ export async function createAccount(
   dependencies: Dependencies,
   userProps: {
     username: string
-    email?: string
+    email: string,
+    code: string
   }
 ): Promise<{ success: boolean }> {
+
+  // const success = await createAccountApi({username: userProps.username, email: userProps.email, code: userProps.code});
+
+  // return {success}
   const jwt = Ucan.encode(await Ucan.build({
     audience: await Fission.did(endpoints),
     dependencies: dependencies,
     issuer: await DID.ucan(dependencies.crypto),
   }))
 
-  const response = await fetch(Fission.apiUrl(endpoints, "/user"), {
-    method: "PUT",
+  const response = await fetch(Fission.apiUrl(endpoints, "/account"), {
+    method: "POST",
     headers: {
       "authorization": `Bearer ${jwt}`,
       "content-type": "application/json"
@@ -46,14 +52,39 @@ export async function createAccount(
 
 
 /**
+ * Create a user account.
+ */
+export async function emailVerify(
+  endpoints: Endpoints,
+  userProps: {
+    email?: string
+  }
+): Promise<{ success: boolean }> {
+  const response = await fetch(Fission.apiUrl(endpoints, "/auth/email/verify"), {
+    method: "POST",
+    headers: {
+      "content-type": "application/json"
+    },
+    body: JSON.stringify(userProps)
+  })
+
+  return {
+    success: response.status < 300
+  }
+}
+
+
+
+/**
  * Check if a username is available.
  */
 export async function isUsernameAvailable(
   endpoints: Endpoints,
   username: string
 ): Promise<boolean> {
+  console.log("sdk isUsernameAvailable  ")
   const resp = await fetch(
-    Fission.apiUrl(endpoints, `/user/data/${username}`)
+    Fission.apiUrl(endpoints, `/account`)
   )
 
   return !resp.ok
