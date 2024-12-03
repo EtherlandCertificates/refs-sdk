@@ -5,14 +5,13 @@ import * as DID from "../../../../did/index.js"
 import * as Fission from "../../../../common/fission.js"
 import * as Reference from "../../../reference/implementation.js"
 import * as Ucan from "../../../../ucan/index.js"
+import { UCAN } from "@fission-codes/ucan"
+import { EdDSASigner } from "iso-signatures/signers/eddsa.js"
 
 import { USERNAME_BLOCKLIST } from "./blocklist.js"
 import { Endpoints } from "../../../../common/fission.js"
 
-// import { createAccountApi } from "../../../../ucans/api.js"
-
 export * from "../../../../common/fission.js"
-
 
 /**
  * Create a user account.
@@ -22,24 +21,24 @@ export async function createAccount(
   dependencies: Dependencies,
   userProps: {
     username: string
-    email: string,
+    email: string
     code: string
   }
 ): Promise<{ success: boolean }> {
+  const signer = await EdDSASigner.generate()
 
-  // const success = await createAccountApi({username: userProps.username, email: userProps.email, code: userProps.code});
-
-  // return {success}
-  const jwt = Ucan.encode(await Ucan.build({
+  const ucan = await UCAN.create({
+    issuer: signer,
     audience: await Fission.did(endpoints),
-    dependencies: dependencies,
-    issuer: await DID.ucan(dependencies.crypto),
-  }))
+    capabilities: { "ucan:*": { "*": [{}] } },
+  })
+  
+  console.log("debug ucan", ucan)
 
   const response = await fetch(Fission.apiUrl(endpoints, "/account"), {
     method: "POST",
     headers: {
-      "authorization": `Bearer ${jwt}`,
+      "authorization": `Bearer ${ucan}`,
       "content-type": "application/json"
     },
     body: JSON.stringify(userProps)

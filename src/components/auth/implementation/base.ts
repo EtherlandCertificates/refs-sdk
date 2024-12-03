@@ -13,12 +13,9 @@ import { Implementation } from "../implementation.js"
 import { Maybe } from "../../../common/types.js"
 import { Session } from "../../../session.js"
 
-
 // 🏔
 
-
 export const TYPE = "webCrypto"
-
 
 export type Dependencies = {
   crypto: Crypto.Implementation
@@ -26,17 +23,16 @@ export type Dependencies = {
   storage: Storage.Implementation
 }
 
-
-
 // 🛠
-
 
 export async function canDelegateAccount(
   dependencies: Dependencies,
   username: string
 ): Promise<boolean> {
   const didFromDNS = await dependencies.reference.didRoot.lookup(username)
-  const maybeUcan: string | null = await dependencies.storage.getItem(dependencies.storage.KEYS.ACCOUNT_UCAN)
+  const maybeUcan: string | null = await dependencies.storage.getItem(
+    dependencies.storage.KEYS.ACCOUNT_UCAN
+  )
 
   if (maybeUcan) {
     const rootIssuerDid = Ucan.rootIssuer(maybeUcan)
@@ -56,9 +52,10 @@ export async function delegateAccount(
   username: string,
   audience: string
 ): Promise<Record<string, unknown>> {
-  const proof: string | undefined = await dependencies.storage.getItem(
-    dependencies.storage.KEYS.ACCOUNT_UCAN
-  ) ?? undefined
+  const proof: string | undefined =
+    (await dependencies.storage.getItem(
+      dependencies.storage.KEYS.ACCOUNT_UCAN
+    )) ?? undefined
 
   // UCAN
   const u = await Ucan.build({
@@ -86,7 +83,10 @@ export async function linkDevice(
   const u = Ucan.decode(token as string)
 
   if (await Ucan.isValid(dependencies.crypto, u)) {
-    await dependencies.storage.setItem(dependencies.storage.KEYS.ACCOUNT_UCAN, token)
+    await dependencies.storage.setItem(
+      dependencies.storage.KEYS.ACCOUNT_UCAN,
+      token
+    )
     await SessionMod.provide(dependencies.storage, { type: TYPE, username })
   }
 }
@@ -100,17 +100,18 @@ export async function linkDevice(
  */
 export async function register(
   dependencies: Dependencies,
-  options: {username: string; email: string; code: string; hashedUsername: string; type?: string }
+  options: { username: string; email: string; type?: string }
 ): Promise<{ success: boolean }> {
-  console.log("sesssion register 123")
-  await SessionMod.provide(dependencies.storage, { type: options.type || TYPE, username: options.username })
-  console.log("bro its perfect")
+  await SessionMod.provide(dependencies.storage, {
+    type: options.type || TYPE,
+    username: options.username,
+  })
   return { success: true }
 }
 
 export async function emailVerify(
   dependencies: Dependencies,
-  options: {email: string; type?: string }
+  options: { email: string; type?: string }
 ): Promise<{ success: boolean }> {
   console.log("emailVerify register 12334")
   // await SessionMod.provide(dependencies.storage, { type: options.type || TYPE, username: options.username })
@@ -130,23 +131,20 @@ export async function session(
       storage: components.storage,
       eventEmitter: eventEmitters.session,
       type: TYPE,
-      username: authedUsername
+      username: authedUsername,
     })
 
     return session
-
   } else {
     return null
-
   }
 }
 
-
-
 // 🛳
 
-
-export function implementation(dependencies: Dependencies): Implementation<Components> {
+export function implementation(
+  dependencies: Dependencies
+): Implementation<Components> {
   return {
     type: TYPE,
 
@@ -156,11 +154,17 @@ export function implementation(dependencies: Dependencies): Implementation<Compo
     register: (...args) => register(dependencies, ...args),
 
     emailVerify: (...args) => emailVerify(dependencies, ...args),
-    
+
     session: session,
     // Have to be implemented properly by other implementations
-    createChannel: () => { throw new Error("Not implemented") },
-    isUsernameValid: () => { throw new Error("Not implemented") },
-    isUsernameAvailable: () => { throw new Error("Not implemented") },
+    createChannel: () => {
+      throw new Error("Not implemented")
+    },
+    isUsernameValid: () => {
+      throw new Error("Not implemented")
+    },
+    isUsernameAvailable: () => {
+      throw new Error("Not implemented")
+    },
   }
 }

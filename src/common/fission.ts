@@ -1,6 +1,7 @@
 import * as DOH from "../components/reference/dns-over-https.js"
 import { ShareDetails } from "../fs/types.js"
 
+export type DID = `did:${string}:${string}`
 
 /**
  * Fission endpoints.
@@ -57,9 +58,8 @@ const didCache: {
  * Lookup the DID of a Fission API.
  * This function caches the DID for 3 hours.
  */
-export async function did(endpoints: Endpoints): Promise<string> {
+export async function did(endpoints: Endpoints): Promise<DID> {
   let host
-  console.log("did **s ", `_did.${endpoints.userDomain}`)
   try {
     host = new URL(endpoints.did).host
   } catch (e) {
@@ -77,7 +77,7 @@ export async function did(endpoints: Endpoints): Promise<string> {
   }
 
   if (!didCache.did) throw new Error("Couldn't get the Fission API DID")
-  return didCache.did
+  return didCache.did as DID
 }
 
 
