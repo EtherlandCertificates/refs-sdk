@@ -30,11 +30,9 @@ export async function createAccount(
   const ucan = await UCAN.create({
     issuer: signer,
     audience: await Fission.did(endpoints),
-    capabilities: { "ucan:*": { "*": [{}] } },
+    capabilities: { [signer.did]: { "account/create": [{}] } },
   })
   
-  console.log("debug ucan", ucan)
-
   const response = await fetch(Fission.apiUrl(endpoints, "/account"), {
     method: "POST",
     headers: {

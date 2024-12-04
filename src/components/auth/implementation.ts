@@ -5,7 +5,6 @@ import { Configuration } from "../../configuration.js"
 import { Maybe } from "../../common/types.js"
 import { Session } from "../../session.js"
 
-
 export type Implementation<C> = {
   type: string
 
@@ -14,18 +13,28 @@ export type Implementation<C> = {
     components: C,
     authenticatedUsername: Maybe<string>,
     config: Configuration,
-    eventEmitters: { fileSystem: Events.Emitter<Events.FileSystem>; session: Events.Emitter<Events.Session<Session>> }
+    eventEmitters: {
+      fileSystem: Events.Emitter<Events.FileSystem>
+      session: Events.Emitter<Events.Session<Session>>
+    }
   ) => Promise<Maybe<Session>>
 
   // Account creation
   isUsernameAvailable: (username: string) => Promise<boolean>
   isUsernameValid: (username: string) => Promise<boolean>
-  register: (options: { username: string; email: string; code: string; hashedUsername: string }) => Promise<{ success: boolean }>
-  emailVerify: (options: { email: string, }) => Promise<{success: boolean}>
+  register: (options: {
+    username: string
+    email: string
+    code: string
+  }) => Promise<{ success: boolean }>
+  emailVerify: (options: { email: string }) => Promise<{ success: boolean }>
 
   // Account delegation
   canDelegateAccount: (username: string) => Promise<boolean>
-  delegateAccount: (username: string, audience: string) => Promise<Record<string, unknown>>
+  delegateAccount: (
+    username: string,
+    audience: string
+  ) => Promise<Record<string, unknown>>
   linkDevice: (username: string, data: Record<string, unknown>) => Promise<void>
 
   // Primitives

@@ -38,7 +38,6 @@ export const isUsernameValid = async (username: string): Promise<boolean> => {
 
 export const emailVerify = async (
   endpoints: Fission.Endpoints,
-  dependencies: Dependencies,
   options: { email?: string }
 ): Promise<{ success: boolean }> => {
   const { success } = await Fission.emailVerify(endpoints, options)
@@ -134,6 +133,6 @@ export function implementation(
     isUsernameAvailable: (...args) => isUsernameAvailable(endpoints, ...args),
     register: (...args) => register(endpoints, dependencies, ...args),
 
-    emailVerify: (...args) => emailVerify(endpoints, dependencies, ...args),
+    emailVerify: (...args) => emailVerify(endpoints, ...args),
   }
 }
