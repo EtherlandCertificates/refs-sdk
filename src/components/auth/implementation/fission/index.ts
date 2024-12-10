@@ -14,6 +14,38 @@ import { Endpoints } from "../../../../common/fission.js"
 export * from "../../../../common/fission.js"
 
 /**
+ * Login a user account.
+ */
+export async function loginAccount(
+  endpoints: Endpoints,
+  dependencies: Dependencies,
+  userProps: {
+    code: string
+  }
+): Promise<{ success: boolean }> {
+  const signer = await EdDSASigner.generate()
+
+  const ucan = await UCAN.create({
+    issuer: signer,
+    audience: await Fission.did(endpoints),
+    capabilities: { [signer.did]: { "account/create": [{}] } },
+  })
+  
+  const response = await fetch(Fission.apiUrl(endpoints, "/account/:did/link"), {
+    method: "POST",
+    headers: {
+      "authorization": `Bearer ${ucan}`,
+      "content-type": "application/json"
+    },
+    body: JSON.stringify(userProps)
+  })
+
+  return {
+    success: response.status < 300
+  }
+}
+
+/**
  * Create a user account.
  */
 export async function createAccount(

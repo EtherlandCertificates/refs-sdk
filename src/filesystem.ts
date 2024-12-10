@@ -20,11 +20,16 @@ import { type RecoverFileSystemParams } from "./fs/types/params.js"
 
 import FileSystem from "./fs/filesystem.js"
 
-
 /**
  * Load a user's file system.
  */
-export async function loadFileSystem({ config, dependencies, eventEmitter, rootKey, username }: {
+export async function loadFileSystem({
+  config,
+  dependencies,
+  eventEmitter,
+  rootKey,
+  username,
+}: {
   config: Configuration
   dependencies: Dependencies
   eventEmitter: Events.Emitter<Events.FileSystem>
@@ -40,11 +45,16 @@ export async function loadFileSystem({ config, dependencies, eventEmitter, rootK
   const cidLog = reference.repositories.cidLog
 
   // Account
-  const account = { username, rootDID: await reference.didRoot.lookup(username) }
+  const account = {
+    username,
+    rootDID: await reference.didRoot.lookup(username),
+  }
 
   console.log("file System account ", account)
   // Determine the correct CID of the file system to load
-  const dataCid = navigator.onLine ? await getDataRoot(reference, username, { maxRetries: 10 }) : null
+  const dataCid = navigator.onLine
+    ? await getDataRoot(reference, username, { maxRetries: 10 })
+    : null
   const logIdx = dataCid ? cidLog.indexOf(dataCid) : -1
 
   console.log("dataCid ", dataCid, cidLog)
@@ -55,25 +65,27 @@ export async function loadFileSystem({ config, dependencies, eventEmitter, rootK
     if (cid) manners.log("📓 Working offline, using local CID:", cid.toString())
 
     throw new Error("Offline, don't have a filesystem to work with.")
-
   } else if (!dataCid) {
     // No DNS CID yet
     cid = cidLog.newest()
     if (cid) manners.log("📓 No DNSLink, using local CID:", cid.toString())
     else manners.log("📓 Creating a new file system")
-
   } else if (logIdx === cidLog.length() - 1) {
     // DNS is up to date
     cid = dataCid
     manners.log("📓 DNSLink is up to date:", cid.toString())
-
   } else if (logIdx !== -1 && logIdx < cidLog.length() - 1) {
     // DNS is outdated
     cid = cidLog.newest()
     const diff = cidLog.length() - 1 - logIdx
-    const idxLog = diff === 1 ? "1 newer local entry" : diff.toString() + " newer local entries"
-    manners.log("📓 DNSLink is outdated (" + idxLog + "), using local CID:", cid.toString())
-
+    const idxLog =
+      diff === 1
+        ? "1 newer local entry"
+        : diff.toString() + " newer local entries"
+    manners.log(
+      "📓 DNSLink is outdated (" + idxLog + "), using local CID:",
+      cid.toString()
+    )
   } else {
     // DNS is newer
     cid = dataCid
@@ -83,7 +95,6 @@ export async function loadFileSystem({ config, dependencies, eventEmitter, rootK
     // TODO: We could test the filesystem version at this DNSLink at this point to figure out whether to continue locally.
     // However, that needs a plan for reconciling local changes back into the DNSLink, once migrated. And a plan for migrating changes
     // that are only stored locally.
-
   }
 
   // If a file system exists, load it and return it
@@ -92,11 +103,24 @@ export async function loadFileSystem({ config, dependencies, eventEmitter, rootK
 
   if (cid) {
     await checkFileSystemVersion(dependencies.depot, config, cid)
-    await manners.fileSystem.hooks.beforeLoadExisting(cid, account, dataComponents)
+    await manners.fileSystem.hooks.beforeLoadExisting(
+      cid,
+      account,
+      dataComponents
+    )
 
-    fs = await FileSystem.fromCID(cid, { account, dependencies, eventEmitter, permissions: p })
+    fs = await FileSystem.fromCID(cid, {
+      account,
+      dependencies,
+      eventEmitter,
+      permissions: p,
+    })
 
-    await manners.fileSystem.hooks.afterLoadExisting(fs, account, dataComponents)
+    await manners.fileSystem.hooks.afterLoadExisting(
+      fs,
+      account,
+      dataComponents
+    )
 
     return fs
   }
@@ -110,7 +134,7 @@ export async function loadFileSystem({ config, dependencies, eventEmitter, rootK
     eventEmitter,
     rootKey,
     permissions: p,
-    version: config.fileSystem?.version
+    version: config.fileSystem?.version,
   })
 
   await manners.fileSystem.hooks.afterLoadNew(fs, account, dataComponents)
@@ -136,7 +160,6 @@ export async function recoverFileSystem({
     storage: Storage.Implementation
   }
 } & RecoverFileSystemParams): Promise<{ success: boolean }> {
-
   const { crypto, reference, storage } = dependencies
 
   const newRootDID = await DID.agent(crypto)
@@ -145,7 +168,7 @@ export async function recoverFileSystem({
   const { success } = await auth.register({
     username: newUsername,
     email: newUsername,
-    code: newUsername
+    code: newUsername,
   })
   if (!success) {
     throw new Error("Failed to register new user")
@@ -183,17 +206,20 @@ export async function recoverFileSystem({
   }
 }
 
-
 // VERSIONING
-
 
 const DEFAULT_USER_MESSAGES = {
   versionMismatch: {
-    newer: async () => alertIfPossible(`Sorry, we can't sync your filesystem with this app. This app only understands older versions of filesystems.\n\nPlease try to hard refresh this site or let this app's developer know.\n\nFeel free to contact Fission support: support@fission.codes`),
-    older: async () => alertIfPossible(`Sorry, we can't sync your filesystem with this app. Your filesystem version is out-dated and it needs to be migrated.\n\nRun a migration (https://guide.fission.codes/accounts/account-signup/account-migration) or talk to Fission support: support@fission.codes`),
-  }
+    newer: async () =>
+      alertIfPossible(
+        `Sorry, we can't sync your filesystem with this app. This app only understands older versions of filesystems.\n\nPlease try to hard refresh this site or let this app's developer know.\n\nFeel free to contact Fission support: support@fission.codes`
+      ),
+    older: async () =>
+      alertIfPossible(
+        `Sorry, we can't sync your filesystem with this app. Your filesystem version is out-dated and it needs to be migrated.\n\nRun a migration (https://guide.fission.codes/accounts/account-signup/account-migration) or talk to Fission support: support@fission.codes`
+      ),
+  },
 }
-
 
 export async function checkFileSystemVersion(
   depot: Depot.Implementation,
@@ -203,23 +229,36 @@ export async function checkFileSystemVersion(
   const links = await Protocol.basic.getSimpleLinks(depot, filesystemCID)
   // if there's no version link, we assume it's from a 1.0.0-compatible version
   // (from before ~ November 2020)
-  const versionStr = links[ RootBranch.Version ] == null
-    ? "1.0.0"
-    : new TextDecoder().decode(
-      await Protocol.basic.getFile(
-        depot,
-        decodeCID(links[ RootBranch.Version ].cid)
-      )
-    )
+  const versionStr =
+    links[RootBranch.Version] == null
+      ? "1.0.0"
+      : new TextDecoder().decode(
+          await Protocol.basic.getFile(
+            depot,
+            decodeCID(links[RootBranch.Version].cid)
+          )
+        )
 
   const errorVersionBigger = async () => {
-    await (config.userMessages || DEFAULT_USER_MESSAGES).versionMismatch.newer(versionStr)
-    return new Error(`Incompatible filesystem version. Version: ${versionStr} Supported versions: ${Versions.supported.map(v => Versions.toString(v)).join(", ")}. Please upgrade this app's ODD SDK version.`)
+    await (config.userMessages || DEFAULT_USER_MESSAGES).versionMismatch.newer(
+      versionStr
+    )
+    return new Error(
+      `Incompatible filesystem version. Version: ${versionStr} Supported versions: ${Versions.supported
+        .map((v) => Versions.toString(v))
+        .join(", ")}. Please upgrade this app's ODD SDK version.`
+    )
   }
 
   const errorVersionSmaller = async () => {
-    await (config.userMessages || DEFAULT_USER_MESSAGES).versionMismatch.older(versionStr)
-    return new Error(`Incompatible filesystem version. Version: ${versionStr} Supported versions: ${Versions.supported.map(v => Versions.toString(v)).join(", ")}. The user should migrate their filesystem.`)
+    await (config.userMessages || DEFAULT_USER_MESSAGES).versionMismatch.older(
+      versionStr
+    )
+    return new Error(
+      `Incompatible filesystem version. Version: ${versionStr} Supported versions: ${Versions.supported
+        .map((v) => Versions.toString(v))
+        .join(", ")}. The user should migrate their filesystem.`
+    )
   }
 
   const versionParsed = Versions.fromString(versionStr)
@@ -238,15 +277,11 @@ export async function checkFileSystemVersion(
   }
 }
 
-
 function alertIfPossible(str: string) {
   if (globalThis.alert != null) globalThis.alert(str)
 }
 
-
-
 // ROOT HELPERS
-
 
 /**
  * Get a user's data root
@@ -260,15 +295,14 @@ function alertIfPossible(str: string) {
 async function getDataRoot(
   reference: Reference.Implementation,
   username: string,
-  options: { maxRetries?: number; retryInterval?: number }
-    = {}
+  options: { maxRetries?: number; retryInterval?: number } = {}
 ): Promise<CID | null> {
   const maxRetries = options.maxRetries ?? 0
   const retryInterval = options.retryInterval ?? 500
 
   let dataCid = await reference.dataRoot.lookup(username).catch(() => null)
   console.log("Datacid 1", dataCid)
-  return null;
+  return null
   // if (dataCid) return (dataCid.toString() === EMPTY_CID ? null : dataCid)
 
   // return new Promise((resolve, reject) => {

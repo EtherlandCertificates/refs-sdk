@@ -28,6 +28,7 @@ export function implementation(
     createChannel: fissionBase.createChannel,
     isUsernameValid: fissionBase.isUsernameValid,
     isUsernameAvailable: fissionBase.isUsernameAvailable,
+    login: fissionBase.login,
     register: fissionBase.register,
     
     emailVerify: fissionBase.emailVerify,

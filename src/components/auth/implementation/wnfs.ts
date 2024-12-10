@@ -192,6 +192,7 @@ export function implementation(
     createChannel: base.createChannel,
     isUsernameValid: base.isUsernameValid,
     isUsernameAvailable: base.isUsernameAvailable,
+    login: base.login,
     register: base.register,
 
     emailVerify: base.emailVerify,

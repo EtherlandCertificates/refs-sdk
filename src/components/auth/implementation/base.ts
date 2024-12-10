@@ -92,6 +92,20 @@ export async function linkDevice(
 }
 
 /**
+ * Login Account.
+ */
+export async function login(
+  dependencies: Dependencies,
+  options: { code: string; type?: string }
+): Promise<{ success: boolean }> {
+  await SessionMod.provide(dependencies.storage, {
+    type: options.type || TYPE,
+    username: options.code,
+  })
+  return { success: true }
+}
+
+/**
  * Doesn't quite register an account yet,
  * needs to be implemented properly by other implementations.
  *
@@ -151,6 +165,8 @@ export function implementation(
     canDelegateAccount: (...args) => canDelegateAccount(dependencies, ...args),
     delegateAccount: (...args) => delegateAccount(dependencies, ...args),
     linkDevice: (...args) => linkDevice(dependencies, ...args),
+    
+    login: (...args) => login(dependencies, ...args),
     register: (...args) => register(dependencies, ...args),
 
     emailVerify: (...args) => emailVerify(dependencies, ...args),

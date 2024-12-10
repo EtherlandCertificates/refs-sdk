@@ -116,6 +116,7 @@ export type AuthenticationStrategy = {
   accountProducer: (username: string) => Promise<AccountLinkingProducer>
   isUsernameAvailable: (username: string) => Promise<boolean>
   isUsernameValid: (username: string) => Promise<boolean>
+  login: (options: { code: string }) => Promise<{ success: boolean }>
   register: (options: { username: string; email: string; code: string }) => Promise<{ success: boolean }>
   session: () => Promise<Maybe<Session>>
   emailVerify: (options: {email: string}) => Promise<{ success: boolean}>
@@ -500,6 +501,7 @@ export async function assemble(config: Configuration, components: Components): P
 
       isUsernameAvailable: method.isUsernameAvailable,
       isUsernameValid: method.isUsernameValid,
+      login: method.login,
       register: method.register,
       emailVerify: method.emailVerify,
 

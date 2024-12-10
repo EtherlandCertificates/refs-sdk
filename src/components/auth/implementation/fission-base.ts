@@ -44,6 +44,24 @@ export const emailVerify = async (
   return { success: success }
 }
 
+export const login = async (
+  endpoints: Fission.Endpoints,
+  dependencies: Dependencies,
+  options: {
+    code: string
+  }
+): Promise<{ success: boolean }> => {
+  const { success } = await Fission.loginAccount(
+    endpoints,
+    dependencies,
+    options
+  )
+
+  if (success)
+    return Base.login(dependencies, { ...options, type: Base.TYPE })
+  return { success: false }
+}
+
 export const register = async (
   endpoints: Fission.Endpoints,
   dependencies: Dependencies,
@@ -131,6 +149,7 @@ export function implementation(
 
     createChannel: (...args) => createChannel(endpoints, dependencies, ...args),
     isUsernameAvailable: (...args) => isUsernameAvailable(endpoints, ...args),
+    login: (...args) => login(endpoints, dependencies, ...args),
     register: (...args) => register(endpoints, dependencies, ...args),
 
     emailVerify: (...args) => emailVerify(endpoints, ...args),
