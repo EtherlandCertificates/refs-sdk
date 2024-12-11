@@ -29,7 +29,7 @@ export async function loginAccount(
   const ucan = await UCAN.create({
     issuer: signer,
     audience: await Fission.did(endpoints),
-    capabilities: { [userProps.did]: { "account/link": [{}] } },
+    capabilities: { [signer.did]: { "account/link": [{}] } },
   })
 
   const response = await fetch(
