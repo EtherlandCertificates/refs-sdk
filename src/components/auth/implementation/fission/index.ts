@@ -20,18 +20,18 @@ export async function loginAccount(
   endpoints: Endpoints,
   dependencies: Dependencies,
   userProps: {
-    code: string
+    did: string
   }
-): Promise<{ success: boolean }> {
+): Promise<{ did: string; username: string }> {
   const signer = await EdDSASigner.generate()
 
   const ucan = await UCAN.create({
     issuer: signer,
     audience: await Fission.did(endpoints),
-    capabilities: { [signer.did]: { "account/create": [{}] } },
+    capabilities: { [userProps.did]: { "account/link": [{}] } },
   })
   
-  const response = await fetch(Fission.apiUrl(endpoints, "/account/:did/link"), {
+  const response = await fetch(Fission.apiUrl(endpoints, `/account/${userProps.did}/link`), {
     method: "POST",
     headers: {
       "authorization": `Bearer ${ucan}`,
@@ -41,7 +41,8 @@ export async function loginAccount(
   })
 
   return {
-    success: response.status < 300
+    did: userProps.did,
+    username: JSON.stringify(response)
   }
 }
 

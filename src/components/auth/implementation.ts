@@ -23,7 +23,8 @@ export type Implementation<C> = {
   isUsernameAvailable: (username: string) => Promise<boolean>
   isUsernameValid: (username: string) => Promise<boolean>
   login: (options: {
-    code: string
+    username: string
+    did: string
   }) => Promise<{ success: boolean }>
   register: (options: {
     username: string

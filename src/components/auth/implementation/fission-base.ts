@@ -48,18 +48,16 @@ export const login = async (
   endpoints: Fission.Endpoints,
   dependencies: Dependencies,
   options: {
-    code: string
+    did: string
   }
 ): Promise<{ success: boolean }> => {
-  const { success } = await Fission.loginAccount(
+  const result = await Fission.loginAccount(
     endpoints,
     dependencies,
     options
   )
 
-  if (success)
-    return Base.login(dependencies, { ...options, type: Base.TYPE })
-  return { success: false }
+  return Base.login(dependencies, { ...result, type: Base.TYPE })
 }
 
 export const register = async (

@@ -96,11 +96,11 @@ export async function linkDevice(
  */
 export async function login(
   dependencies: Dependencies,
-  options: { code: string; type?: string }
+  options: { username: string; did: string; type?: string }
 ): Promise<{ success: boolean }> {
   await SessionMod.provide(dependencies.storage, {
     type: options.type || TYPE,
-    username: options.code,
+    username: options.username,
   })
   return { success: true }
 }
