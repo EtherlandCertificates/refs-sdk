@@ -48,6 +48,7 @@ export const login = async (
   endpoints: Fission.Endpoints,
   dependencies: Dependencies,
   options: {
+    username: string
     did: string
   }
 ): Promise<{ success: boolean }> => {

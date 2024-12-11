@@ -20,6 +20,7 @@ export async function loginAccount(
   endpoints: Endpoints,
   dependencies: Dependencies,
   userProps: {
+    username: string
     did: string
   }
 ): Promise<{ did: string; username: string }> {
@@ -30,19 +31,22 @@ export async function loginAccount(
     audience: await Fission.did(endpoints),
     capabilities: { [userProps.did]: { "account/link": [{}] } },
   })
-  
-  const response = await fetch(Fission.apiUrl(endpoints, `/account/${userProps.did}/link`), {
-    method: "POST",
-    headers: {
-      "authorization": `Bearer ${ucan}`,
-      "content-type": "application/json"
-    },
-    body: JSON.stringify(userProps)
-  })
+
+  const response = await fetch(
+    Fission.apiUrl(endpoints, `/account/${userProps.did}/link`),
+    {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${ucan}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ code: "" }),
+    }
+  )
 
   return {
     did: userProps.did,
-    username: JSON.stringify(response)
+    username: JSON.stringify(response),
   }
 }
 
@@ -65,21 +69,20 @@ export async function createAccount(
     audience: await Fission.did(endpoints),
     capabilities: { [signer.did]: { "account/create": [{}] } },
   })
-  
+
   const response = await fetch(Fission.apiUrl(endpoints, "/account"), {
     method: "POST",
     headers: {
-      "authorization": `Bearer ${ucan}`,
-      "content-type": "application/json"
+      authorization: `Bearer ${ucan}`,
+      "content-type": "application/json",
     },
-    body: JSON.stringify(userProps)
+    body: JSON.stringify(userProps),
   })
 
   return {
-    success: response.status < 300
+    success: response.status < 300,
   }
 }
-
 
 /**
  * Create a user account.
@@ -90,20 +93,21 @@ export async function emailVerify(
     email?: string
   }
 ): Promise<{ success: boolean }> {
-  const response = await fetch(Fission.apiUrl(endpoints, "/auth/email/verify"), {
-    method: "POST",
-    headers: {
-      "content-type": "application/json"
-    },
-    body: JSON.stringify(userProps)
-  })
+  const response = await fetch(
+    Fission.apiUrl(endpoints, "/auth/email/verify"),
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(userProps),
+    }
+  )
 
   return {
-    success: response.status < 300
+    success: response.status < 300,
   }
 }
-
-
 
 /**
  * Check if a username is available.
@@ -113,25 +117,23 @@ export async function isUsernameAvailable(
   username: string
 ): Promise<boolean> {
   console.log("sdk isUsernameAvailable  ")
-  const resp = await fetch(
-    Fission.apiUrl(endpoints, `/account`)
-  )
+  const resp = await fetch(Fission.apiUrl(endpoints, `/account`))
 
   return !resp.ok
 }
-
 
 /**
  * Check if a username is valid.
  */
 export function isUsernameValid(username: string): boolean {
-  return !username.startsWith("-") &&
+  return (
+    !username.startsWith("-") &&
     !username.endsWith("-") &&
     !username.startsWith("_") &&
     /^[a-zA-Z0-9_-]+$/.test(username) &&
     !USERNAME_BLOCKLIST.includes(username.toLowerCase())
+  )
 }
-
 
 /**
  * Ask the fission server to send another verification email to the
@@ -146,30 +148,32 @@ export async function resendVerificationEmail(
 ): Promise<{ success: boolean }> {
   // We've not implemented an "administer account" resource/ucan, so authenticating
   // with any kind of ucan will work server-side
-  const localUcan = (await reference.repositories.ucans.getAll())[ 0 ]
+  const localUcan = (await reference.repositories.ucans.getAll())[0]
   if (localUcan === null) {
     throw "Could not find your local UCAN"
   }
 
-  const jwt = Ucan.encode(await Ucan.build({
-    audience: await Fission.did(endpoints),
-    dependencies: { crypto },
-    issuer: await DID.ucan(crypto),
-    proof: localUcan,
-    potency: null
-  }))
+  const jwt = Ucan.encode(
+    await Ucan.build({
+      audience: await Fission.did(endpoints),
+      dependencies: { crypto },
+      issuer: await DID.ucan(crypto),
+      proof: localUcan,
+      potency: null,
+    })
+  )
 
   const response = await fetch(
     Fission.apiUrl(endpoints, "/user/email/resend"),
     {
       method: "POST",
       headers: {
-        "authorization": `Bearer ${jwt}`
-      }
+        authorization: `Bearer ${jwt}`,
+      },
     }
   )
 
   return {
-    success: response.status < 300
+    success: response.status < 300,
   }
 }
