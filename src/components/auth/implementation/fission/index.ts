@@ -44,9 +44,11 @@ export async function loginAccount(
     }
   )
 
+  const re = await response.json()
+
   return {
     did: userProps.did,
-    username: JSON.stringify(response),
+    username: re.account.username.split(".localhost")[0],
   }
 }
 
