@@ -182,5 +182,8 @@ export function implementation(
     isUsernameAvailable: () => {
       throw new Error("Not implemented")
     },
+    isEmailExist: () => {
+      throw new Error("Not implemented")
+    },
   }
 }

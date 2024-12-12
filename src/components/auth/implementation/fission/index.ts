@@ -118,8 +118,16 @@ export async function isUsernameAvailable(
   endpoints: Endpoints,
   username: string
 ): Promise<boolean> {
-  console.log("sdk isUsernameAvailable  ")
-  const resp = await fetch(Fission.apiUrl(endpoints, `/account`))
+  const resp = await fetch(
+    Fission.apiUrl(endpoints, `/account/username/check`),
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ username: username }),
+    }
+  )
 
   return !resp.ok
 }
@@ -135,6 +143,27 @@ export function isUsernameValid(username: string): boolean {
     /^[a-zA-Z0-9_-]+$/.test(username) &&
     !USERNAME_BLOCKLIST.includes(username.toLowerCase())
   )
+}
+
+/**
+ * Check if a email is exist.
+ */
+export async function isEmailExist(
+  endpoints: Endpoints,
+  email: string
+): Promise<boolean> {
+  const resp = await fetch(
+    Fission.apiUrl(endpoints, `/auth/email/check`),
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ email: email }),
+    }
+  )
+
+  return !resp.ok
 }
 
 /**

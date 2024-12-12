@@ -119,6 +119,7 @@ export type AuthenticationStrategy = {
   login: (options: { username: string; did: string }) => Promise<{ success: boolean }>
   register: (options: { username: string; email: string; code: string }) => Promise<{ success: boolean }>
   session: () => Promise<Maybe<Session>>
+  isEmailExist: (email: string) => Promise<boolean>
   emailVerify: (options: {email: string}) => Promise<{ success: boolean}>
 }
 
@@ -503,6 +504,7 @@ export async function assemble(config: Configuration, components: Components): P
       isUsernameValid: method.isUsernameValid,
       login: method.login,
       register: method.register,
+      isEmailExist: method.isEmailExist,
       emailVerify: method.emailVerify,
 
       async session(): Promise<Maybe<Session>> {

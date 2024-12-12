@@ -31,6 +31,7 @@ export function implementation(
     login: fissionBase.login,
     register: fissionBase.register,
     
+    isEmailExist: fissionBase.isEmailExist,
     emailVerify: fissionBase.emailVerify,
 
   }

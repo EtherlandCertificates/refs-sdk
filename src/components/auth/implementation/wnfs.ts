@@ -194,7 +194,8 @@ export function implementation(
     isUsernameAvailable: base.isUsernameAvailable,
     login: base.login,
     register: base.register,
-
+    
+    isEmailExist: base.isEmailExist,
     emailVerify: base.emailVerify,
   }
 }

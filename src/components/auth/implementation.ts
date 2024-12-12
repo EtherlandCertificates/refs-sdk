@@ -31,6 +31,7 @@ export type Implementation<C> = {
     email: string
     code: string
   }) => Promise<{ success: boolean }>
+  isEmailExist: (email: string) => Promise<boolean>
   emailVerify: (options: { email: string }) => Promise<{ success: boolean }>
 
   // Account delegation
