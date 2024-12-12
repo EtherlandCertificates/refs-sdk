@@ -129,7 +129,7 @@ export async function isUsernameAvailable(
     }
   )
 
-  return !resp.ok
+  return await resp.json()
 }
 
 /**
@@ -163,7 +163,7 @@ export async function isEmailExist(
     }
   )
 
-  return !resp.ok
+  return await resp.json()
 }
 
 /**
