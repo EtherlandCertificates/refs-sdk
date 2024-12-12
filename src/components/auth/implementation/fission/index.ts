@@ -129,7 +129,9 @@ export async function isUsernameAvailable(
     }
   )
 
-  return await resp.json()
+  const re = await resp.json()
+
+  return re.success
 }
 
 /**
@@ -152,18 +154,17 @@ export async function isEmailExist(
   endpoints: Endpoints,
   email: string
 ): Promise<boolean> {
-  const resp = await fetch(
-    Fission.apiUrl(endpoints, `/auth/email/check`),
-    {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({ email: email }),
-    }
-  )
+  const resp = await fetch(Fission.apiUrl(endpoints, `/auth/email/check`), {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ email: email }),
+  })
 
-  return await resp.json()
+  const re = await resp.json()
+
+  return re.success
 }
 
 /**
