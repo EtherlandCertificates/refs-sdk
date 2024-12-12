@@ -131,7 +131,7 @@ export async function isUsernameAvailable(
 
   const re = await resp.json()
 
-  return re.success
+  return !re.success
 }
 
 /**
