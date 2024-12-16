@@ -153,7 +153,8 @@ export function fetchPeers(peersUrl: string): Promise<string[]> {
   return fetch(peersUrl)
     .then((r) => r.json())
     .then((r) => (Array.isArray(r) ? r : []))
-    .then((r) => r.filter((p) => t.isString(p) && p.includes("/wss/")))
+    .then((r) => r.filter((p) => t.isString(p)))
+    // .then((r) => r.filter((p) => t.isString(p) && p.includes("/wss/")))
     .catch(() => {
       throw new Error("💥 Couldn't start IPFS node, failed to fetch peer list")
     })
