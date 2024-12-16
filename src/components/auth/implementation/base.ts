@@ -127,9 +127,7 @@ export async function emailVerify(
   dependencies: Dependencies,
   options: { email: string; type?: string }
 ): Promise<{ success: boolean }> {
-  console.log("emailVerify register 12334")
   // await SessionMod.provide(dependencies.storage, { type: options.type || TYPE, username: options.username })
-  console.log("emailVerify perfect")
   return { success: true }
 }
 

@@ -50,15 +50,12 @@ export async function loadFileSystem({
     rootDID: await reference.didRoot.lookup(username),
   }
 
-  console.log("file System account ", account)
   // Determine the correct CID of the file system to load
   const dataCid = navigator.onLine
     ? await getDataRoot(reference, username, { maxRetries: 10 })
     : null
   const logIdx = dataCid ? cidLog.indexOf(dataCid) : -1
 
-  console.log("dataCid ", dataCid, cidLog)
-  console.log("logIdx ", logIdx)
   if (!navigator.onLine) {
     // Offline, use local CID
     cid = cidLog.newest()
@@ -301,25 +298,23 @@ async function getDataRoot(
   const retryInterval = options.retryInterval ?? 500
 
   let dataCid = await reference.dataRoot.lookup(username).catch(() => null)
-  console.log("Datacid 1", dataCid)
-  return null
-  // if (dataCid) return (dataCid.toString() === EMPTY_CID ? null : dataCid)
+  if (dataCid) return (dataCid.toString() === EMPTY_CID ? null : dataCid)
 
-  // return new Promise((resolve, reject) => {
-  //   let attempt = 0
+  return new Promise((resolve, reject) => {
+    let attempt = 0
 
-  //   const dataRootInterval = setInterval(async () => {
-  //     dataCid = await reference.dataRoot.lookup(username).catch(() => null)
-  //     console.log("getDataRoot ", dataCid)
-  //     if (!dataCid && attempt < maxRetries) {
-  //       attempt++
-  //       return
-  //     } else if (attempt >= maxRetries) {
-  //       reject("Failed to load data root")
-  //     }
+    const dataRootInterval = setInterval(async () => {
+      dataCid = await reference.dataRoot.lookup(username).catch(() => null)
 
-  //     clearInterval(dataRootInterval)
-  //     resolve(dataCid?.toString() === EMPTY_CID ? null : dataCid)
-  //   }, retryInterval)
-  // })
+      if (!dataCid && attempt < maxRetries) {
+        attempt++
+        return
+      } else if (attempt >= maxRetries) {
+        reject("Failed to load data root")
+      }
+
+      clearInterval(dataRootInterval)
+      resolve(dataCid?.toString() === EMPTY_CID ? null : dataCid)
+    }, retryInterval)
+  })
 }
